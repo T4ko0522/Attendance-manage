@@ -38,7 +38,6 @@ def save_attendance_data(data):
 
 def is_school_day():
     today = datetime.now().strftime("%Y-%m-%d")
-    
     with open(CSV_FILE_PATH, 'r', encoding='utf-8') as csv_file:
         csv_reader = csv.reader(csv_file)
         for row in csv_reader:
@@ -52,7 +51,7 @@ def get_school_days():
     end_date = datetime(2025, 3, 31)
     total_days = (end_date - start_date).days + 1
 
-#対応するcsvに置き換えてください。
+#対応するcsvの形式に書き換えてください
     with open(CSV_FILE_PATH, 'r', encoding='utf-8') as csv_file:
         csv_reader = csv.reader(csv_file)
         for row in csv_reader:

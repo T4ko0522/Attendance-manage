@@ -37,11 +37,11 @@ def save_attendance_data(data):
         json.dump(data, f, indent=4)
 
 def is_school_day():
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now().strftime("%-m-%-d")
     with open(CSV_FILE_PATH, 'r', encoding='utf-8') as csv_file:
         csv_reader = csv.reader(csv_file)
         for row in csv_reader:
-            if (len(row) > 3) and (row[0] == today) and ("休校日" in row[3] or "自由登校" in row[3]): return False
+            if (len(row) > 3) and (row[0] + "-" + row[1] == today) and ("休校日" in row[3] or "自由登校" in row[3]): return False
     return True
 
 def get_school_days():
@@ -51,9 +51,9 @@ def get_school_days():
     end_date = datetime(2025, 3, 31)
     total_days = (end_date - start_date).days + 1
 
-#対応するcsvの形式に書き換えてください
     with open(CSV_FILE_PATH, 'r', encoding='utf-8') as csv_file:
         csv_reader = csv.reader(csv_file)
+        print(csv_reader)
         for row in csv_reader:
             if len(row) > 3:
                 if "休校日" in row[3]:

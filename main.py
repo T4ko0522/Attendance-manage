@@ -11,19 +11,20 @@ from dotenv import load_dotenv
 from time import sleep
 from datetime import datetime
 from discord import app_commands
-load_dotenv('.env')
+load_dotenv('discord bot tokenがある.envを指定（直書きなら消してね）')
 
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
 client = discord.Client(intents=intents, activity=discord.Game("出席確認中"))
 tree = app_commands.CommandTree(client)
-schedule_time = "09:30" #任意の時間を入力
+schedule_time = "09:30"
 
 TOKEN = os.getenv('Token')
-CHANNEL_ID = 1111111111111111111 #定期投稿するチャンネルのChannel IDを入力
-JSON_FILE_PATH = 'info.json'
-CSV_FILE_PATH = "schedule.csv" #とある場所の年間予定表です。(一部変更済み)
+CHANNEL_ID = 定期投稿するchannel id
+ALLOWED_USER_ID = 使う人のuser id
+JSON_FILE_PATH = 'script/出席状況.json'
+CSV_FILE_PATH = 'script/年間予定.csv'
 
 def load_attendance_data():
     if os.path.exists(JSON_FILE_PATH):
@@ -64,11 +65,11 @@ def get_school_days():
     return total_days - total_non_school_days
 
 async def check_and_notify():
-    print(f"今日は出席日です。\n日付 : {datetime.now()}")
     if is_school_day():
         channel = client.get_channel(CHANNEL_ID)
         if channel:
-            await send_to_discord("今日は出席日です。\n出席しましたか？遅刻または欠席ですか？")
+            await send_to_discord("n今日は出席日です。\n出席しましたか？遅刻または欠席ですか？")
+            print(f"今日は出席日です。\n日付 : {datetime.now()}")
     else:
         print(f"今日は休校日または自由登校日です。\n日付 : {datetime.now()}")
 
@@ -92,10 +93,14 @@ def get_japan_time():
 @client.event
 async def on_ready():
     await tree.sync()
-    print(f'login is successful\nlogged in {client.user}')
+    print(f'┎-------------------------------┒\n┃login is successful            ┃\n┃logged in {client.user}     ┃\n┖-------------------------------┚')
 
 @tree.command(name="schoolday", description="手動で登校日のメッセージを出力します。")
 async def schoolday_command(interaction: discord.Interaction):
+    if interaction.user.id != ALLOWED_USER_ID:
+        await interaction.response.send_message("このコマンドを使用する権限がありません。", ephemeral=True)
+        return
+
     await send_to_discord("今日は出席日です。\n出席しましたか？遅刻または欠席ですか？")
     await interaction.response.send_message("下記のメッセージにリアクションをつけてください。", ephemeral=True)
 
@@ -118,7 +123,7 @@ async def total_command(interaction: discord.Interaction):
 
 @client.event
 async def on_reaction_add(reaction, user):
-    if user.bot:
+    if user.bot or user.id != ALLOWED_USER_ID:
         return
 
     channel = client.get_channel(CHANNEL_ID)

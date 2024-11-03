@@ -23,7 +23,7 @@ schedule_time = "09:30"
 TOKEN = os.getenv('Token')
 CHANNEL_ID = 定期投稿するchannel id
 ALLOWED_USER_ID = 使う人のuser id
-JSON_FILE_PATH = 'script/出席状況.json'
+JSON_FILE_PATH = 'script/info.json'
 CSV_FILE_PATH = 'script/年間予定.csv'
 
 def load_attendance_data():
@@ -125,14 +125,11 @@ async def total_command(interaction: discord.Interaction):
 async def on_reaction_add(reaction, user):
     if user.bot or user.id != ALLOWED_USER_ID:
         return
-
     channel = client.get_channel(CHANNEL_ID)
     if reaction.message.channel.id != CHANNEL_ID:
         return
-
     if str(reaction.emoji) not in ['✅', '❌']:
         return
-
     data = load_attendance_data()
     today_status = "出席" if str(reaction.emoji) == '✅' else "遅刻"
     if today_status == "出席":
